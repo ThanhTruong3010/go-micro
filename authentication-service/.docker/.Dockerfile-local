@@ -1,0 +1,9 @@
+FROM alpine:latest
+
+RUN mkdir /app
+
+RUN cd ../
+
+COPY authApp /app
+
+CMD [ "/app/authApp" ]

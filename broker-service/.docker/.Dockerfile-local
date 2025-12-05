@@ -1,0 +1,9 @@
+FROM alpine:latest
+
+RUN mkdir /app
+
+RUN cd ../
+
+COPY brokerApp /app
+
+CMD [ "/app/brokerApp" ]

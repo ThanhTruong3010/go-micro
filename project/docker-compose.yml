@@ -5,19 +5,19 @@ services:
     container_name: broker-service
     build:
       context: ./../broker-service
-      dockerfile: ./../broker-service/.Dockerfile
+      dockerfile: .docker/.Dockerfile
     restart: always
     ports:
       - "8080:80"
     deploy:
       mode: replicated
       replicas: 1
-  
+
   authentication-service:
     container_name: auth-service
     build:
       context: ./../authentication-service
-      dockerfile: ./../authentication-service/.Dockerfile
+      dockerfile: .docker/.Dockerfile
     restart: always
     ports:
       - "8081:80"
@@ -32,11 +32,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: users
-      DB_SSLMODE: disable 
+      DB_SSLMODE: disable
       DB_TIMEZONE: Asia/Ho_Chi_Minh
     depends_on:
       - postgres
-      
+
   postgres:
     image: postgres:latest
     container_name: postgres_auth_service
