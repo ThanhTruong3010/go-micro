@@ -1,0 +1,11 @@
+FROM alpine:latest
+
+RUN mkdir /app
+
+RUN cd ../
+
+COPY mailApp /app
+
+COPY templates /templates
+
+CMD [ "/app/mailApp" ]
