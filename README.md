@@ -7,7 +7,7 @@ A microservices architecture project built with Go, featuring a broker service, 
 ```
 ┌─────────────────┐     ┌─────────────────────┐     ┌──────────────┐     ┌──────────────┐
 │   Front-End     │────▶│   Broker Service    │────▶│Logger Service│────▶│   MongoDB    │
-│   (Port 80)     │     │    (Port 8080)      │    │  (Port 8082) │     │ (Port 27017) │
+│   (Port 80)     │     │    (Port 8080)      │     │  (Port 8082) │     │ (Port 27017) │
 └────────┬────────┘     └──────────┬──────────┘     └──────────────┘     └──────────────┘
          │                         │
          │              ┌──────────┴──────┐
