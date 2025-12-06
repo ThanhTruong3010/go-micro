@@ -12,6 +12,14 @@ type RequestPayload struct {
 	Action string      `json:"action"`
 	Auth   AuthPayload `json:"auth,omitempty"`
 	Log    LogPayload  `json:"log,omitempty"`
+	Mail   MailPayload `json:"mail,omitempty"`
+}
+
+type MailPayload struct {
+	From    string `json:"from"`
+	To      string `json:"to"`
+	Subject string `json:"subject"`
+	Message string `json:"message"`
 }
 
 type AuthPayload struct {
@@ -26,6 +34,7 @@ type LogPayload struct {
 
 const logServiceURL string = "http://logger-service"          // connect internal docker container
 const authServiceURL string = "http://authentication-service" // connect internal docker container
+const mailServiceURL string = "http://mailer-service"         // connect internal docker container
 
 func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
 	payload := jsonResponse{
@@ -51,6 +60,8 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 		app.authenticate(w, requestPayload.Auth)
 	case "log":
 		app.logItem(w, requestPayload.Log)
+	case "mail":
+		app.sendMail(w, requestPayload.Mail)
 	default:
 		app.errorJSON(w, errors.New("unknown action"))
 	}
@@ -140,4 +151,38 @@ func (app *Config) authenticate(w http.ResponseWriter, auth AuthPayload) {
 
 	app.writeJSON(w, http.StatusAccepted, payload)
 
+}
+
+func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
+	// create some json we'll send to the logger microservice
+	jsonData, _ := json.MarshalIndent(msg, "", "\t")
+
+	// call the service
+	request, err := http.NewRequest("POST", fmt.Sprintf("%s/send", mailServiceURL), bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	res, err := client.Do(request)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+
+	defer res.Body.Close()
+
+	// make sure we get back the correct status code
+	if res.StatusCode != http.StatusAccepted {
+		app.errorJSON(w, errors.New("error calling mail service"))
+		return
+	}
+
+	// send back json
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "Message sent to" + msg.To
+
+	app.writeJSON(w, http.StatusAccepted, payload)
 }
