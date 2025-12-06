@@ -6,15 +6,20 @@ A microservices architecture project built with Go, featuring a broker service, 
 
 ```
 ┌─────────────────┐     ┌─────────────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Front-End    │────▶│   Broker Service    │────▶│  Auth Service │────▶│Logger Service│
-│   (Port 80)    │     │    (Port 8080)      │     │  (Port 8081)  │     │  (Port 8082) │
-└─────────────────┘     └─────────────────────┘     └───────┬──────┘     └───────┬──────┘
-                                                           │                    │
-                                                           ▼                    ▼
-                                                   ┌──────────────┐     ┌──────────────┐
-                                                   │  PostgreSQL  │     │   MongoDB    │
-                                                   │  (Port 5432) │     │ (Port 27017) │
-                                                   └──────────────┘     └──────────────┘
+│   Front-End     │────▶│   Broker Service    │────▶│Logger Service│────▶│   MongoDB    │
+│   (Port 80)     │     │    (Port 8080)      │    │  (Port 8082) │     │ (Port 27017) │
+└────────┬────────┘     └──────────┬──────────┘     └──────────────┘     └──────────────┘
+         │                         │
+         │              ┌──────────┴──────┐
+         └─────────────▶│  Auth Service   │
+                        │  (Port 8081)    │
+                        └────────┬────────┘
+                                 │
+                                 ▼
+                        ┌──────────────┐
+                        │  PostgreSQL  │
+                        │  (Port 5432) │
+                        └──────────────┘
 ```
 
 ## Project Structure
