@@ -9,6 +9,7 @@ fi
 FRONT_END_BINARY=frontApp
 BROKER_BINARY=brokerApp
 AUTH_BINARY=authApp
+LOGGER_BINARY=loggerApp
 MODE=${MODE:-development}
 
 # Set compose file based on MODE
@@ -33,6 +34,7 @@ up() {
 ## up_build: stops docker-compose (if running), builds all projects and starts docker compose
 up_build() {
     build_broker
+    build_logger
     build_auth
     echo "Stopping docker images (if running...)"
     docker-compose -f $COMPOSE_FILE down
@@ -60,6 +62,14 @@ build_broker() {
 build_auth() {
     echo "Building auth binary..."
     cd ../authentication-service && env GOOS=linux CGO_ENABLED=0 go build -o $AUTH_BINARY ./cmd/api
+    cd - > /dev/null
+    echo "Done!"
+}
+
+## build_logger: builds the logger binary as a linux executable
+build_logger() {
+    echo "Building logger binary..."
+    cd ../logger-service && env GOOS=linux CGO_ENABLED=0 go build -o $LOGGER_BINARY ./cmd/api
     cd - > /dev/null
     echo "Done!"
 }
@@ -96,6 +106,7 @@ usage() {
     echo "  down        - Stop containers"
     echo "  build_broker - Build broker binary"
     echo "  build_auth  - Build auth binary"
+    echo "  build_logger  - Build logger binary"
     echo "  build_front - Build front end binary"
     echo "  start       - Start front end"
     echo "  stop        - Stop front end"
@@ -136,6 +147,9 @@ case $1 in
         ;;
     build_broker)
         build_broker
+        ;;
+    build_logger)
+        build_logger
         ;;
     build_auth)
         build_auth

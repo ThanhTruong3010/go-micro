@@ -1,1 +1,7 @@
 project/db-data/
+
+# Compiled binaries
+broker-service/brokerApp
+authentication-service/authApp
+logger-service/loggerApp
+front-end/frontApp

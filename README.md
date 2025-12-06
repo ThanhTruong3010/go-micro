@@ -1,20 +1,20 @@
 # Go Microservices
 
-A microservices architecture project built with Go, featuring a broker service, authentication service, and front-end application.
+A microservices architecture project built with Go, featuring a broker service, authentication service, logger service, and front-end application.
 
 ## Architecture
 
 ```
-┌─────────────────┐     ┌─────────────────────┐     ┌──────────────┐
-│   Front-End    │────▶│   Broker Service    │────▶│  Auth Service │
-│   (Port 80)    │     │    (Port 8080)      │     │  (Port 8081)  │
-└─────────────────┘     └─────────────────────┘     └───────┬──────┘
-                                                           │
-                                                           ▼
-                                                   ┌──────────────┐
-                                                   │  PostgreSQL  │
-                                                   │  (Port 5432) │
-                                                   └──────────────┘
+┌─────────────────┐     ┌─────────────────────┐     ┌──────────────┐     ┌──────────────┐
+│   Front-End    │────▶│   Broker Service    │────▶│  Auth Service │────▶│Logger Service│
+│   (Port 80)    │     │    (Port 8080)      │     │  (Port 8081)  │     │  (Port 8082) │
+└─────────────────┘     └─────────────────────┘     └───────┬──────┘     └───────┬──────┘
+                                                           │                    │
+                                                           ▼                    ▼
+                                                   ┌──────────────┐     ┌──────────────┐
+                                                   │  PostgreSQL  │     │   MongoDB    │
+                                                   │  (Port 5432) │     │ (Port 27017) │
+                                                   └──────────────┘     └──────────────┘
 ```
 
 ## Project Structure
@@ -25,6 +25,9 @@ go-micro/
 │   ├── cmd/api/              # Application entry point
 │   └── .docker/              # Docker configurations
 ├── broker-service/           # API gateway/broker microservice
+│   ├── cmd/api/              # Application entry point
+│   └── .docker/              # Docker configurations
+├── logger-service/           # Logging microservice
 │   ├── cmd/api/              # Application entry point
 │   └── .docker/              # Docker configurations
 ├── front-end/                # Web front-end application
@@ -39,12 +42,14 @@ go-micro/
 
 ## Services
 
-| Service                | Port | Description                                                   |
-| ---------------------- | ---- | ------------------------------------------------------------- |
-| Broker Service         | 8080 | API gateway that routes requests to appropriate microservices |
-| Authentication Service | 8081 | Handles user authentication                                   |
-| PostgreSQL             | 5432 | Database for user data                                        |
-| Front-End              | 80   | Web interface                                                 |
+| Service                | Port  | Description                                                   |
+| ---------------------- | ----- | ------------------------------------------------------------- |
+| Broker Service         | 8080  | API gateway that routes requests to appropriate microservices |
+| Authentication Service | 8081  | Handles user authentication                                   |
+| Logger Service         | 8082  | Handles logging to MongoDB                                    |
+| PostgreSQL             | 5432  | Database for user data                                        |
+| MongoDB                | 27017 | Database for logs                                             |
+| Front-End              | 80    | Web interface                                                 |
 
 ## Prerequisites
 
@@ -156,6 +161,12 @@ Or pass as argument:
 | ------ | --------------- | ----------------------------- |
 | POST   | `/authenticate` | Authenticate user credentials |
 
+### Logger Service (Port 8082)
+
+| Method | Endpoint | Description     |
+| ------ | -------- | --------------- |
+| POST   | `/log`   | Write log entry |
+
 ## Example Requests
 
 ### Authenticate User
@@ -172,17 +183,27 @@ curl -X POST http://localhost:8080/handle \
   }'
 ```
 
-## Database
+## Databases
 
-PostgreSQL is used for storing user data.
+### PostgreSQL (User Data)
 
-**Default credentials:**
+| Property | Value                                     |
+| -------- | ----------------------------------------- |
+| Host     | `localhost` (or `postgres` within Docker) |
+| Port     | `5432`                                    |
+| User     | `postgres`                                |
+| Password | `password`                                |
+| Database | `users`                                   |
 
-- Host: `localhost` (or `postgres` within Docker network)
-- Port: `5432`
-- User: `postgres`
-- Password: `password`
-- Database: `users`
+### MongoDB (Logs)
+
+| Property | Value                                  |
+| -------- | -------------------------------------- |
+| Host     | `localhost` (or `mongo` within Docker) |
+| Port     | `27017`                                |
+| User     | `admin`                                |
+| Password | `password`                             |
+| Database | `logs`                                 |
 
 ## Development
 
@@ -196,6 +217,10 @@ go build -o brokerApp ./cmd/api
 # Build authentication service
 cd authentication-service
 go build -o authApp ./cmd/api
+
+# Build logger service
+cd logger-service
+go build -o loggerApp ./cmd/api
 
 # Build front-end
 cd front-end
@@ -215,7 +240,10 @@ cd authentication-service && ./authApp
 # Terminal 2 - Broker Service
 cd broker-service && ./brokerApp
 
-# Terminal 3 - Front-end
+# Terminal 3 - Logger Service
+cd logger-service && ./loggerApp
+
+# Terminal 4 - Front-end
 cd front-end && ./frontApp
 ```
 
