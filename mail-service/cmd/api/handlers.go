@@ -16,7 +16,7 @@ type mailMessage struct {
 	Message  any    `json:"message"`
 }
 
-const logServiceURL string = "http://logger-service" // connect internal docker container
+var logServiceURL string = GetServiceURL("logger")
 
 func (app *Config) SendMail(w http.ResponseWriter, r *http.Request) {
 	var requestPayload mailMessage

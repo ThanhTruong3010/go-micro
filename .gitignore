@@ -1,5 +1,13 @@
 project/db-data/
 
+# runtime files
+broker-service/tmp
+authentication-service/tmp
+logger-service/tmp
+mail-service/tmp
+front-end/tmp
+
+
 # Compiled binaries
 broker-service/brokerApp
 authentication-service/authApp
