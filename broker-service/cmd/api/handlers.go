@@ -32,9 +32,9 @@ type LogPayload struct {
 	Data string `json:"data"`
 }
 
-const logServiceURL string = "http://logger-service"          // connect internal docker container
-const authServiceURL string = "http://authentication-service" // connect internal docker container
-const mailServiceURL string = "http://mailer-service"         // connect internal docker container
+var logServiceURL string = GetServiceURL("logger")
+var authServiceURL string = GetServiceURL("auth")
+var mailServiceURL string = GetServiceURL("mailer")
 
 func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
 	payload := jsonResponse{

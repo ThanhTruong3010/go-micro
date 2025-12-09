@@ -4,20 +4,27 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-)
 
-const WEB_PORT = "80"
+	"github.com/joho/godotenv"
+)
 
 type Config struct{}
 
 func main() {
+	// Load .env file if it exists
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using environment variables")
+	}
+
 	app := Config{}
 
-	log.Printf("Starting broker service on port %s\n", WEB_PORT)
+	port := GetEnv("BROKER_PORT", "8080")
+
+	log.Printf("Starting broker service on port %s\n", port)
 
 	// define http server
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", WEB_PORT),
+		Addr:    fmt.Sprintf(":%s", port),
 		Handler: app.routes(),
 	}
 

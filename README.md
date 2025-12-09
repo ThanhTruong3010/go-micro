@@ -46,9 +46,13 @@ go-micro/
 ├── project/                  # Docker compose configurations
 │   ├── docker-compose.yml           # Production compose file
 │   ├── docker-compose-local.yml     # Development compose file
-│   └── Makefile                     # Make commands
-├── .env                      # Environment variables
-└── build.sh                  # Build script
+│   ├── Makefile                     # Make commands
+│   ├── build.sh                     # Build script
+│   └── .env                         # Environment variables
+├── broker-service/.air.toml         # Air hot reload config
+├── authentication-service/.air.toml # Air hot reload config
+├── logger-service/.air.toml         # Air hot reload config
+└── mail-service/.air.toml           # Air hot reload config
 ```
 
 ## Services
@@ -69,12 +73,15 @@ go-micro/
 - Go 1.21+
 - Docker & Docker Compose
 - Make (optional)
+- Air (optional, for hot reload)
 
 ## Quick Start
 
 ### Using build.sh (Recommended)
 
 ```bash
+cd project
+
 # Make the script executable (first time only)
 chmod +x build.sh
 
@@ -268,6 +275,37 @@ curl -X POST http://localhost:8080/handle \
 
 ## Development
 
+### Hot Reload with Air
+
+This project supports hot reload using [Air](https://github.com/air-verse/air) for faster development.
+
+#### Install Air
+
+```bash
+go install github.com/air-verse/air@latest
+
+# Add Go bin to PATH (if not already)
+export PATH=$PATH:$(go env GOPATH)/bin
+```
+
+#### Run with Hot Reload
+
+```bash
+# Terminal 1 - Broker Service
+cd broker-service && air
+
+# Terminal 2 - Auth Service
+cd authentication-service && air
+
+# Terminal 3 - Logger Service
+cd logger-service && air
+
+# Terminal 4 - Mail Service
+cd mail-service && air
+```
+
+Air will automatically rebuild and restart the service when you modify any `.go` files.
+
 ### Building Individual Services
 
 ```bash
@@ -294,26 +332,43 @@ go build -o frontApp ./cmd/web
 
 ### Running Locally (without Docker)
 
-1. Start PostgreSQL
-2. Set environment variables
+1. Start PostgreSQL, MongoDB, and MailHog
+2. Set environment variables (or use `.env` files in each service)
 3. Run each service:
 
 ```bash
 # Terminal 1 - Auth Service
-cd authentication-service && ./authApp
+cd authentication-service && go run ./cmd/api
 
 # Terminal 2 - Broker Service
-cd broker-service && ./brokerApp
+cd broker-service && go run ./cmd/api
 
 # Terminal 3 - Logger Service
-cd logger-service && ./loggerApp
+cd logger-service && go run ./cmd/api
 
 # Terminal 4 - Mail Service
-cd mail-service && ./mailApp
+cd mail-service && go run ./cmd/api
 
 # Terminal 5 - Front-end
-cd front-end && ./frontApp
+cd front-end && go run ./cmd/web
 ```
+
+### Environment Variables
+
+Each service can load environment variables from:
+
+1. `project/.env` - Shared variables (ports, mode)
+2. `<service>/.env` - Service-specific variables
+
+Key variables in `project/.env`:
+
+| Variable      | Default       | Description                   |
+| ------------- | ------------- | ----------------------------- |
+| `MODE`        | `development` | `development` or `production` |
+| `BROKER_PORT` | `8080`        | Broker service port           |
+| `AUTH_PORT`   | `8081`        | Authentication service port   |
+| `LOGGER_PORT` | `8082`        | Logger service port           |
+| `MAILER_PORT` | `8083`        | Mail service port             |
 
 ## License
 

@@ -1,4 +1,4 @@
-package utils
+package main
 
 import (
 	"fmt"
@@ -28,6 +28,14 @@ func GetServiceURL(service string) string {
 	}
 
 	return fmt.Sprintf("http://%s:%s", host, GetEnv(cfg.portEnv, cfg.portDef))
+}
+
+func GetMongoURL() string {
+	host := "mongodb://localhost:27017"
+	if GetEnv("MODE", "development") != "development" {
+		host = "mongodb://mongo:27017"
+	}
+	return host
 }
 
 func GetEnv(key, def string) string {

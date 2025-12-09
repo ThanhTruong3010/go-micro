@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Load environment variables from .env file
+# Load environment variables from .env file and export them
 if [ -f .env ]; then
+    set -a  # automatically export all variables
     source .env
+    set +a  # disable auto-export
 fi
 
 # Variables
@@ -21,9 +23,6 @@ else
     COMPOSE_FILE=docker-compose.yml
     echo "[MODE] Production mode selected - using $COMPOSE_FILE"
 fi
-
-# Change to project directory
-cd "$(dirname "$0")/project" || exit 1
 
 ## up: starts all containers in the background without forcing build
 up() {

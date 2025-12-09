@@ -4,25 +4,31 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
 	Mailer Mail
 }
 
-const webPort string = "80"
-
 func main() {
+	// Load .env file if it exists
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using environment variables")
+	}
+
 	app := Config{
 		Mailer: createMail(),
 	}
 
-	log.Println("Starting mail service on port", webPort)
+	port := GetEnv("MAILER_PORT", "8083")
+
+	log.Printf("Starting mailer service on port %s\n", port)
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", webPort),
+		Addr:    fmt.Sprintf(":%s", port),
 		Handler: app.routes(),
 	}
 
@@ -33,16 +39,16 @@ func main() {
 }
 
 func createMail() Mail {
-	port, _ := strconv.Atoi(os.Getenv("MAIL_PORT"))
+	port, _ := strconv.Atoi(GetEnv("MAIL_PORT", "1025"))
 	m := Mail{
-		Domain:      os.Getenv("MAIL_DOMAIN"),
-		Host:        os.Getenv("MAIL_HOST"),
+		Domain:      GetEnv("MAIL_DOMAIN", "localhost"),
+		Host:        GetEnv("MAIL_HOST", "mailhog"),
 		Port:        port,
-		Username:    os.Getenv("MAIL_USERNAME"),
-		Password:    os.Getenv("MAIL_PASSWORD"),
-		Encryption:  os.Getenv("MAIL_ENCRYPTION"),
-		FromName:    os.Getenv("MAIL_FROM_NAME"),
-		FromAddress: os.Getenv("MAIL_FROM_ADDRESS"),
+		Username:    GetEnv("MAIL_USERNAME", ""),
+		Password:    GetEnv("MAIL_PASSWORD", ""),
+		Encryption:  GetEnv("MAIL_ENCRYPTION", "none"),
+		FromName:    GetEnv("MAIL_FROM_NAME", "Thanh Truong"),
+		FromAddress: GetEnv("MAIL_FROM_ADDRESS", "thanh.truong@example.com"),
 	}
 
 	return m
