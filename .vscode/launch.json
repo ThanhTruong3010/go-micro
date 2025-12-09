@@ -1,0 +1,49 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Broker Service",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/broker-service/cmd/api",
+      "envFile": "${workspaceFolder}/project/.env",
+      "cwd": "${workspaceFolder}/broker-service"
+    },
+    {
+      "name": "Debug Auth Service",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/authentication-service/cmd/api",
+      "envFile": "${workspaceFolder}/project/.env",
+      "cwd": "${workspaceFolder}/authentication-service"
+    },
+    {
+      "name": "Debug Logger Service",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/logger-service/cmd/api",
+      "envFile": "${workspaceFolder}/project/.env",
+      "cwd": "${workspaceFolder}/logger-service"
+    },
+    {
+      "name": "Debug Mail Service",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/mail-service/cmd/api",
+      "envFile": "${workspaceFolder}/project/.env",
+      "cwd": "${workspaceFolder}/mail-service"
+    },
+    {
+      "name": "Debug Front-end",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/front-end/cmd/web",
+      "cwd": "${workspaceFolder}/front-end"
+    }
+  ]
+}

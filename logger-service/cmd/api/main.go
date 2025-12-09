@@ -6,7 +6,6 @@ import (
 	"log"
 	"log-service/data"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -53,7 +52,7 @@ func main() {
 		log.Println("No .env file found, using environment variables")
 	}
 
-	port := getEnv("LOGGER_PORT", "8082")
+	port := GetEnv("LOGGER_PORT", "8082")
 
 	log.Printf("Starting logger service on port %s\n", port)
 
@@ -103,11 +102,4 @@ func connectToMongo() (*mongo.Client, error) {
 	log.Println("Connected to Mongo!")
 
 	return c, nil
-}
-
-func getEnv(key, def string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return def
 }
