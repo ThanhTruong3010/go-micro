@@ -2,9 +2,11 @@ FRONT_END_BINARY=frontApp
 BROKER_BINARY=brokerApp
 AUTH_BINARY=authApp
 LOGGER_BINARY=loggerApp
+MAIL_BINARY=mailApp
 
 # Load MODE from .env file, default to development
 -include ../.env
+export
 MODE ?= development
 
 # Set compose file based on MODE
@@ -19,21 +21,21 @@ endif
 ## up: starts all containers in the background without forcing build
 up:
 	@echo "Starting Docker images using $(COMPOSE_FILE)..."
-	docker-compose -f $(COMPOSE_FILE) up -d
+	docker-compose --env-file ../.env -f $(COMPOSE_FILE) up -d
 	@echo "Docker images started!"
 
 ## up_build: stops docker-compose (if running), builds all projects and starts docker compose
-up_build: build_broker build_auth build_logger
+up_build: build_broker build_auth build_logger build_mail
 	@echo "Stopping docker images (if running...)"
-	docker-compose -f $(COMPOSE_FILE) down
+	docker-compose --env-file ../.env -f $(COMPOSE_FILE) down
 	@echo "Building (when required) and starting docker images using $(COMPOSE_FILE)..."
-	docker-compose -f $(COMPOSE_FILE) up --build -d
+	docker-compose --env-file ../.env -f $(COMPOSE_FILE) up --build -d
 	@echo "Docker images built and started!"
 
 ## down: stop docker compose
 down:
 	@echo "Stopping docker compose..."
-	docker-compose -f $(COMPOSE_FILE) down
+	docker-compose --env-file ../.env -f $(COMPOSE_FILE) down
 	@echo "Done!"
 
 ## build_broker: builds the broker binary as a linux executable
@@ -52,6 +54,12 @@ build_auth:
 build_logger:
 	@echo "Building logger binary..."
 	cd ../logger-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LOGGER_BINARY} ./cmd/api
+	@echo "Done!"
+
+## build_mail: builds the mail binary as a linux executable
+build_mail:
+	@echo "Building mail binary..."
+	cd ../mail-service && env GOOS=linux CGO_ENABLED=0 go build -o ${MAIL_BINARY} ./cmd/api
 	@echo "Done!"
 
 ## build_front: builds the frone end binary

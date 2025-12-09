@@ -1,6 +1,7 @@
 package main
 
 import (
+	"authentication/utils"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -13,7 +14,7 @@ type requestPayload struct {
 	Password string `json:"password"`
 }
 
-const logServiceURL string = "http://logger-service" // connect internal docker container
+var logServiceURL string = utils.GetServiceURL("logger")
 
 func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 	var requestPayload requestPayload

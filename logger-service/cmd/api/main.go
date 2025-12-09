@@ -6,16 +6,16 @@ import (
 	"log"
 	"log-service/data"
 	"net/http"
+	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
-	webPort  = "80"
 	rpcPort  = "5001"
-	mongoURL = "mongodb://mongo:27017"
 	gRpcPort = "50001"
 )
 
@@ -48,12 +48,19 @@ func main() {
 	app := Config{
 		Models: data.New(client),
 	}
+	// Load .env file if it exists
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using environment variables")
+	}
+
+	port := getEnv("LOGGER_PORT", "8082")
+
+	log.Printf("Starting logger service on port %s\n", port)
 
 	// start web server
 	// go app.serve()
-	log.Println("Starting service on port", webPort)
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", webPort),
+		Addr:    fmt.Sprintf(":%s", port),
 		Handler: app.routes(),
 	}
 
@@ -78,6 +85,7 @@ func main() {
 
 func connectToMongo() (*mongo.Client, error) {
 	// create connection options
+	mongoURL := GetMongoURL()
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	clientOptions.SetAuth(options.Credential{
 		Username: "admin",
@@ -95,4 +103,11 @@ func connectToMongo() (*mongo.Client, error) {
 	log.Println("Connected to Mongo!")
 
 	return c, nil
+}
+
+func getEnv(key, def string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return def
 }

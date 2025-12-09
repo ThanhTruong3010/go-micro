@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Load environment variables from .env file
+# Load environment variables from .env file and export them
 if [ -f .env ]; then
+    set -a  # automatically export all variables
     source .env
+    set +a  # disable auto-export
 fi
 
 # Variables
@@ -10,6 +12,7 @@ FRONT_END_BINARY=frontApp
 BROKER_BINARY=brokerApp
 AUTH_BINARY=authApp
 LOGGER_BINARY=loggerApp
+MAIL_BINARY=mailApp
 MODE=${MODE:-development}
 
 # Set compose file based on MODE
@@ -20,9 +23,6 @@ else
     COMPOSE_FILE=docker-compose.yml
     echo "[MODE] Production mode selected - using $COMPOSE_FILE"
 fi
-
-# Change to project directory
-cd "$(dirname "$0")/project" || exit 1
 
 ## up: starts all containers in the background without forcing build
 up() {
@@ -36,6 +36,7 @@ up_build() {
     build_broker
     build_logger
     build_auth
+    build_mail
     echo "Stopping docker images (if running...)"
     docker-compose -f $COMPOSE_FILE down
     echo "Building (when required) and starting docker images using $COMPOSE_FILE..."
@@ -70,6 +71,14 @@ build_auth() {
 build_logger() {
     echo "Building logger binary..."
     cd ../logger-service && env GOOS=linux CGO_ENABLED=0 go build -o $LOGGER_BINARY ./cmd/api
+    cd - > /dev/null
+    echo "Done!"
+}
+
+## build_mail: builds the mail binary as a linux executable
+build_mail() {
+    echo "Building mail binary..."
+    cd ../mail-service && env GOOS=linux CGO_ENABLED=0 go build -o $MAIL_BINARY ./cmd/api
     cd - > /dev/null
     echo "Done!"
 }
