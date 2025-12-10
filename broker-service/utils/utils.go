@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"fmt"
@@ -10,10 +10,11 @@ var serviceConfig = map[string]struct {
 	portEnv string
 	portDef string
 }{
-	"auth":   {"authentication-service", "AUTH_PORT", "8081"},
-	"logger": {"logger-service", "LOGGER_PORT", "8082"},
-	"mailer": {"mailer-service", "MAILER_PORT", "8083"},
-	"broker": {"broker-service", "BROKER_PORT", "8080"},
+	"auth":     {"authentication-service", "AUTH_PORT", "8081"},
+	"logger":   {"logger-service", "LOGGER_PORT", "8082"},
+	"mailer":   {"mailer-service", "MAILER_PORT", "8083"},
+	"broker":   {"broker-service", "BROKER_PORT", "8080"},
+	"rabbitmq": {"rabbitmq", "RABBITMQ_PORT", "5672"},
 }
 
 func GetServiceURL(service string) string {
@@ -35,4 +36,12 @@ func GetEnv(key, def string) string {
 		return v
 	}
 	return def
+}
+
+func GetRabbitMQHostEnv() string {
+	host := "localhost"
+	if GetEnv("MODE", "development") != "development" {
+		host = "rabbitmq"
+	}
+	return host
 }

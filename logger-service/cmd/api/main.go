@@ -87,8 +87,8 @@ func connectToMongo() (*mongo.Client, error) {
 	mongoURL := GetMongoURL()
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	clientOptions.SetAuth(options.Credential{
-		Username: "admin",
-		Password: "password",
+		Username: GetEnv("MONGO_USERNAME", "admin"),
+		Password: GetEnv("MONGO_PASSWORD", "password"),
 	})
 
 	// connect

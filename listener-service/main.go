@@ -1,29 +1,18 @@
 package main
 
 import (
-	"broker-service/utils"
 	"fmt"
+	"listener-service/event"
+	"listener-service/utils"
 	"log"
 	"math"
-	"net/http"
 	"os"
 	"time"
-
-	"github.com/joho/godotenv"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type Config struct {
-	Rabbit *amqp.Connection
-}
-
 func main() {
-	// Load .env file if it exists
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using environment variables")
-	}
-
 	// try to connect to rabbitmq
 	rabbitConn, err := connect()
 	if err != nil {
@@ -32,25 +21,20 @@ func main() {
 	}
 	defer rabbitConn.Close()
 
-	app := Config{
-		Rabbit: rabbitConn,
-	}
+	// start listening for messages
+	log.Println("Listening for consuming RabbitMQ messages...")
 
-	port := utils.GetEnv("BROKER_PORT", "8080")
-
-	log.Printf("Starting broker service on port %s\n", port)
-
-	// define http server
-	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", port),
-		Handler: app.routes(),
-	}
-
-	// start the server
-	err = srv.ListenAndServe()
+	// create consumer
+	consumer, err := event.NewConsumer(rabbitConn)
 	if err != nil {
-		log.Panic(err)
+		panic(err)
 	}
+
+	// watch the queue and consume events
+	if err := consumer.Listen([]string{"auth.INFO", "log.WARNING", "log.ERROR"}); err != nil {
+		panic(err)
+	}
+
 }
 
 func connect() (*amqp.Connection, error) {
