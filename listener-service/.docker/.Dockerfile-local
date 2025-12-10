@@ -1,0 +1,9 @@
+FROM alpine:latest
+
+RUN mkdir /app
+
+RUN cd ../
+
+COPY listenerApp /app
+
+CMD [ "/app/listenerApp" ]
