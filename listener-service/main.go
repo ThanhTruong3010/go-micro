@@ -31,7 +31,7 @@ func main() {
 	}
 
 	// watch the queue and consume events
-	if err := consumer.Listen([]string{"auth.INFO", "log.WARNING", "log.ERROR"}); err != nil {
+	if err := consumer.Listen([]string{"auth.INFO", "log.INFO", "log.WARNING", "log.ERROR"}); err != nil {
 		panic(err)
 	}
 
@@ -44,7 +44,7 @@ func connect() (*amqp.Connection, error) {
 
 	// don't continue until rabbit is ready
 	for {
-		var url string = fmt.Sprintf("amqp://guest:guest@%s", utils.GetRabbitMQHostEnv())
+		var url string = utils.GetRabbitMQURL()
 		c, err := amqp.Dial(url)
 		if err != nil {
 			fmt.Println("RabbitMQ not yet ready...")

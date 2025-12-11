@@ -60,7 +60,7 @@ func connect() (*amqp.Connection, error) {
 
 	// don't continue until rabbit is ready
 	for {
-		var url string = fmt.Sprintf("amqp://guest:guest@%s", utils.GetRabbitMQHostEnv())
+		var url string = utils.GetRabbitMQURL()
 		c, err := amqp.Dial(url)
 		if err != nil {
 			fmt.Println("RabbitMQ not yet ready...")
