@@ -6,7 +6,7 @@ MAIL_BINARY=mailApp
 LISTENER_BINARY=listenerApp
 
 # Load MODE from .env file, default to development
--include ../.env
+-include .env
 export
 MODE ?= development
 
