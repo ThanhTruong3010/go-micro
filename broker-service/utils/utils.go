@@ -38,10 +38,10 @@ func GetEnv(key, def string) string {
 	return def
 }
 
-func GetRabbitMQHostEnv() string {
+func GetRabbitMQURL() string {
 	host := "localhost"
 	if GetEnv("MODE", "development") != "development" {
 		host = "rabbitmq"
 	}
-	return host
+	return fmt.Sprintf("amqp://guest:guest@%s", host)
 }

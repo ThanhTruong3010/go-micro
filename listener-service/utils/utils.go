@@ -24,7 +24,8 @@ func GetServiceURL(service string) string {
 	}
 
 	host := "localhost"
-	if GetEnv("MODE", "development") != "development" {
+	envMode := GetEnv("MODE", "development")
+	if envMode != "development" {
 		host = cfg.host
 	}
 
@@ -38,10 +39,11 @@ func GetEnv(key, def string) string {
 	return def
 }
 
-func GetRabbitMQHostEnv() string {
+func GetRabbitMQURL() string {
 	host := "localhost"
-	if GetEnv("MODE", "development") != "development" {
+	envMode := GetEnv("MODE", "development")
+	if envMode != "development" {
 		host = "rabbitmq"
 	}
-	return host
+	return fmt.Sprintf("amqp://guest:guest@%s", host)
 }

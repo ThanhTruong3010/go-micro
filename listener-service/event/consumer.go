@@ -81,7 +81,7 @@ func (consumer *Consumer) Listen(topics []string) error {
 		for d := range messages {
 			var payload Payload
 			_ = json.Unmarshal(d.Body, &payload)
-			go handlePayload(payload)
+			handlePayload(payload)
 		}
 	}()
 
@@ -102,7 +102,7 @@ func handlePayload(payload Payload) {
 		// authenticate
 	}
 
-	// we can have as many cases as yoy want, as long as we write the logic
+	// we can have as many cases as we want, as long as we write the logic
 }
 
 func logEvent(entry Payload) error {
