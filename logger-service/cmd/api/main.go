@@ -6,6 +6,7 @@ import (
 	"log"
 	"log-service/data"
 	"net/http"
+	"net/rpc"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -55,6 +56,15 @@ func main() {
 	port := GetEnv("LOGGER_PORT", "8082")
 
 	log.Printf("Starting logger service on port %s\n", port)
+
+	// Register the RPC server
+	err = rpc.Register(new(RPCServer))
+	if err != nil {
+		log.Panic("Error registering RPC:", err)
+	}
+	go app.RPCListen()
+
+	go app.gRPCListen()
 
 	// start web server
 	// go app.serve()
