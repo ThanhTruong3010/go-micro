@@ -3,9 +3,10 @@ BROKER_BINARY=brokerApp
 AUTH_BINARY=authApp
 LOGGER_BINARY=loggerApp
 MAIL_BINARY=mailApp
+LISTENER_BINARY=listenerApp
 
 # Load MODE from .env file, default to development
--include ../.env
+-include .env
 export
 MODE ?= development
 
@@ -21,21 +22,21 @@ endif
 ## up: starts all containers in the background without forcing build
 up:
 	@echo "Starting Docker images using $(COMPOSE_FILE)..."
-	docker-compose --env-file ../.env -f $(COMPOSE_FILE) up -d
+	docker-compose --env-file .env -f $(COMPOSE_FILE) up -d
 	@echo "Docker images started!"
 
 ## up_build: stops docker-compose (if running), builds all projects and starts docker compose
-up_build: build_broker build_auth build_logger build_mail
+up_build: build_broker build_auth build_logger build_mail build_listener
 	@echo "Stopping docker images (if running...)"
-	docker-compose --env-file ../.env -f $(COMPOSE_FILE) down
+	docker-compose --env-file .env -f $(COMPOSE_FILE) down
 	@echo "Building (when required) and starting docker images using $(COMPOSE_FILE)..."
-	docker-compose --env-file ../.env -f $(COMPOSE_FILE) up --build -d
+	docker-compose --env-file .env -f $(COMPOSE_FILE) up --build -d
 	@echo "Docker images built and started!"
 
 ## down: stop docker compose
 down:
 	@echo "Stopping docker compose..."
-	docker-compose --env-file ../.env -f $(COMPOSE_FILE) down
+	docker-compose --env-file .env -f $(COMPOSE_FILE) down
 	@echo "Done!"
 
 ## build_broker: builds the broker binary as a linux executable
@@ -62,7 +63,13 @@ build_mail:
 	cd ../mail-service && env GOOS=linux CGO_ENABLED=0 go build -o ${MAIL_BINARY} ./cmd/api
 	@echo "Done!"
 
-## build_front: builds the frone end binary
+## build_listener: builds the listener binary as a linux executable
+build_listener:
+	@echo "Building listener binary..."
+	cd ../listener-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LISTENER_BINARY} .
+	@echo "Done!"
+
+## build_front: builds the front end binary
 build_front:
 	@echo "Building front end binary..."
 	cd ../front-end && env CGO_ENABLED=0 go build -o ${FRONT_END_BINARY} ./cmd/web

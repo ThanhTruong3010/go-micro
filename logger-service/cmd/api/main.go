@@ -6,6 +6,7 @@ import (
 	"log"
 	"log-service/data"
 	"net/http"
+	"net/rpc"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -56,6 +57,15 @@ func main() {
 
 	log.Printf("Starting logger service on port %s\n", port)
 
+	// Register the RPC server
+	err = rpc.Register(new(RPCServer))
+	if err != nil {
+		log.Panic("Error registering RPC:", err)
+	}
+	go app.RPCListen()
+
+	go app.gRPCListen()
+
 	// start web server
 	// go app.serve()
 	srv := &http.Server{
@@ -87,8 +97,8 @@ func connectToMongo() (*mongo.Client, error) {
 	mongoURL := GetMongoURL()
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	clientOptions.SetAuth(options.Credential{
-		Username: "admin",
-		Password: "password",
+		Username: GetEnv("MONGO_USERNAME", "admin"),
+		Password: GetEnv("MONGO_PASSWORD", "password"),
 	})
 
 	// connect

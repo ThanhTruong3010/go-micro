@@ -38,6 +38,15 @@
       "cwd": "${workspaceFolder}/mail-service"
     },
     {
+      "name": "Debug Listener Service(Queue)",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/listener-service",
+      "envFile": "${workspaceFolder}/project/.env",
+      "cwd": "${workspaceFolder}/listener-service"
+    },
+    {
       "name": "Debug Front-end",
       "type": "go",
       "request": "launch",

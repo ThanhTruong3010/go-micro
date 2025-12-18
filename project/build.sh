@@ -13,6 +13,7 @@ BROKER_BINARY=brokerApp
 AUTH_BINARY=authApp
 LOGGER_BINARY=loggerApp
 MAIL_BINARY=mailApp
+LISTENER_BINARY=listenerApp
 MODE=${MODE:-development}
 
 # Set compose file based on MODE
@@ -37,6 +38,7 @@ up_build() {
     build_logger
     build_auth
     build_mail
+    build_listener
     echo "Stopping docker images (if running...)"
     docker-compose -f $COMPOSE_FILE down
     echo "Building (when required) and starting docker images using $COMPOSE_FILE..."
@@ -83,6 +85,14 @@ build_mail() {
     echo "Done!"
 }
 
+## build_listener: builds the listener binary as a linux executable
+build_listener() {
+    echo "Building listener binary..."
+    cd ../listener-service && env GOOS=linux CGO_ENABLED=0 go build -o $LISTENER_BINARY .
+    cd - > /dev/null
+    echo "Done!"
+}
+
 ## build_front: builds the front end binary
 build_front() {
     echo "Building front end binary..."
@@ -116,6 +126,7 @@ usage() {
     echo "  build_broker - Build broker binary"
     echo "  build_auth  - Build auth binary"
     echo "  build_logger  - Build logger binary"
+    echo "  build_listener  - Build listener binary"
     echo "  build_front - Build front end binary"
     echo "  start       - Start front end"
     echo "  stop        - Stop front end"
