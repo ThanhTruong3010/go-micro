@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
@@ -272,9 +273,20 @@ func (app *Config) LogViaGRPC(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cp := grpc.ConnectParams{
+		Backoff: backoff.Config{
+			BaseDelay:  200 * time.Millisecond, // initial
+			Multiplier: 1.6,                    // growth factor
+			Jitter:     0.2,                    // add randomness
+			MaxDelay:   5 * time.Second,        // cap
+		},
+		MinConnectTimeout: 3 * time.Second,
+	}
+
 	conn, err := grpc.NewClient(
 		"logger-service:50001",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithConnectParams(cp),
 	)
 	if err != nil {
 		app.errorJSON(w, err)
