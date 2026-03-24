@@ -11,6 +11,7 @@
                 <a id="logBrokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Log</a>
                 <a id="mailBrokerBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Mail</a>
                 <a id="logBrokerGRPCBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test gRPC</a>
+                <a id="logBrokerQueueBtn" class="btn btn-outline-secondary" href="javascript:void(0);">Test Queue</a>
 
                 <div id="output" class="mt-5" style="outline: 1px solid silver; padding: 2em;">
                     <span class="text-muted">Output shows here...</span>
@@ -40,6 +41,7 @@
     let authBrokerBtn = document.getElementById("authBrokerBtn");
     let logBrokerBtn = document.getElementById("logBrokerBtn");
     let logBrokerGRPCBtn = document.getElementById("logBrokerGRPCBtn");
+    let logBrokerQueueBtn = document.getElementById("logBrokerQueueBtn");
     let mailBrokerBtn = document.getElementById("mailBrokerBtn");
     let output = document.getElementById("output");
     let sent = document.getElementById("payload");
@@ -159,6 +161,42 @@
         }
 
         fetch("http:\/\/localhost:8080/log-grpc", body)
+        .then((response) => response.json())
+        .then((data) => {
+            sent.innerHTML = JSON.stringify(payload, undefined, 4);
+            received.innerHTML = JSON.stringify(data, undefined, 4);
+            if (data.error) {
+                console.error(data.message);
+                output.innerHTML += `<br><strong>Error:</strong> ${data.message}`
+            } else {
+                output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+            }
+        })
+        .catch((error) => {
+            output.innerHTML += "<br><br>Error: " + error;
+        })
+    })
+
+    logBrokerQueueBtn.addEventListener("click", function() {
+
+        const payload = {
+            action: "log",
+            log: {
+                name: "event",
+                data: "Some kind of Queue data"
+            }
+        }
+
+        const headers = new Headers();
+        headers.append("Content-Type", "application/json")
+
+        const body = {
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: headers
+        }
+
+        fetch("http:\/\/localhost:8080/log-queue", body)
         .then((response) => response.json())
         .then((data) => {
             sent.innerHTML = JSON.stringify(payload, undefined, 4);

@@ -2,6 +2,7 @@ package main
 
 import (
 	// "broker-service/event"
+	"broker-service/event"
 	"broker-service/logs"
 	"broker-service/utils"
 	"bytes"
@@ -201,40 +202,47 @@ func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
 
-// func (app *Config) logEventViaRabbit(w http.ResponseWriter, l LogPayload) {
-// 	err := app.pushToQueue(l.Name, l.Data)
-// 	if err != nil {
-// 		app.errorJSON(w, err)
-// 		return
-// 	}
+func (app *Config) LogEventViaRabbit(w http.ResponseWriter, r *http.Request) {
+	var requestPayload RequestPayload
 
-// 	var payload jsonResponse
-// 	payload.Error = false
-// 	payload.Message = "logged via RabbitMQ"
+	err := app.readJSON(w, r, &requestPayload)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
+	err = app.pushToQueue(requestPayload.Log.Name, requestPayload.Log.Data)
+	if err != nil {
+		app.errorJSON(w, err)
+		return
+	}
 
-// 	app.writeJSON(w, http.StatusAccepted, payload)
-// }
+	var payload jsonResponse
+	payload.Error = false
+	payload.Message = "logged via RabbitMQ"
 
-// func (app *Config) pushToQueue(name, msg string) error {
-// 	emitter, err := event.NewEventEmitter(app.Rabbit)
-// 	if err != nil {
-// 		return err
-// 	}
+	app.writeJSON(w, http.StatusAccepted, payload)
+}
 
-// 	payload := LogPayload{
-// 		Name: name,
-// 		Data: msg,
-// 	}
+func (app *Config) pushToQueue(name, msg string) error {
+	emitter, err := event.NewEventEmitter(app.Rabbit)
+	if err != nil {
+		return err
+	}
 
-// 	jsonData, _ := json.MarshalIndent(&payload, "", "\t")
+	payload := LogPayload{
+		Name: name,
+		Data: msg,
+	}
 
-// 	err = emitter.Push(string(jsonData), "log.INFO")
-// 	if err != nil {
-// 		return err
-// 	}
+	jsonData, _ := json.MarshalIndent(&payload, "", "\t")
 
-// 	return nil
-// }
+	err = emitter.Push(string(jsonData), "log.INFO")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func (app *Config) logItemViaRPC(w http.ResponseWriter, l LogPayload) {
 	client, err := rpc.Dial("tcp", "logger-service:5001")
